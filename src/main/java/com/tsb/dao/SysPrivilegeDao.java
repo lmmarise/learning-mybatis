@@ -42,6 +42,9 @@ public interface SysPrivilegeDao {
      */
     List<SysPrivilege> queryAll(SysPrivilege sysPrivilege);
 
+
+    List<SysPrivilege> selectByUser(SysPrivilege sysPrivilege);
+
     /**
      * 新增数据
      *
