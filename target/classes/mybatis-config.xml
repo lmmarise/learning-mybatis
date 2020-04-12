@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <settings>
+        <!--配置指定使用LOG4J 输出日志-->
+        <setting name="logImpl" value="LOG4J"/>
+        <!--自动将user_name -> userName, 避免select user_name userName这种写法-->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+
+    <!--MyBatis 会在包名下面搜索需要的 Java Bean-->
+    <!--在没有注解的情况下，会使用 Bean 的首字母小写的非限定类名来作为它的别名-->
+    <typeAliases>
+        <package name="com.tsb.dao"/>
+    </typeAliases>
+
+    <!--环境配置，连接的数据库，这里使用的是MySQL-->
+    <environments default="development">
+        <environment id="development">
+            <!--指定事务管理的类型，这里简单使用Java的JDBC的提交和回滚设置-->
+            <transactionManager type="JDBC">
+                <property name="" value=""/>
+            </transactionManager>
+            <!--dataSource 指连接源配置，POOLED是JDBC连接对象的数据源连接池的实现-->
+            <dataSource type="UNPOOLED">
+                <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://127.0.0.1:3306/mybatis
+                ?useUnicode=true&amp;characterEncoding=utf-8&amp;serverTimezone=Asia/Shanghai"/>
+                <property name="username" value="root"/>
+                <property name="password" value="lisago"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <mappers>
+        <!--MyBatis的SQL语句和映射配置文件-->
+        <!--Mapper在mybatis中作为接口和类名的后缀-->
+        <!--<mapper resource="tk/mybatis/simple/mapper/CountryMapper.xml"/>-->
+        <!--加载该包下所有的接口的xml映射文件, 将接口的全限定名转化为路径, 找到.xml为后缀的资源, 解析-->
+        <package name="com.tsb.dao"/>
+    </mappers>
+</configuration>
