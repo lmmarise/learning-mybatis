@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="com.tsb.dao.SysPrivilegeDao">
 
     <resultMap id="sysPrivilege" type="com.tsb.entity.SysPrivilege">
@@ -10,12 +12,37 @@
     </resultMap>
 
     <select id="selectByUser" resultMap="sysPrivilege">
-        select id,
-               privilege_name privilegeName,
-               privilege_url privilegeUrl
-        from sys_role_privilege
-        where privilege_name like concat('%', #{userName}, '%')
-            and privilege_url = #{privilegeUrl}
+        select id, privilege_name, privilege_url
+        from sys_privilege
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="privilegeName != null and privilegeName != ''">
+                and privilege_name = #{privilegeName}
+            </if>
+            <if test="privilegeUrl != null and privilegeUrl != ''">
+                and privilege_url = #{privilegeUrl}
+            </if>
+        </where>
     </select>
+
+    <update id="update">
+        update sys_privilege
+        set
+        <if test="privilegeName != null and privilegeName != ''">
+            privilege_name = #{privilegeName},
+        </if>
+        <if test="privilegeUrl != null and privilegeUrl != ''">
+            privilege_url = #{privilegeUrl}
+        </if>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_privilege(privilege_name, privilege_url)
+        values (#{privilegeName}, #{privilegeUrl})
+    </insert>
+
 
 </mapper>

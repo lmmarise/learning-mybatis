@@ -152,4 +152,27 @@
         inner join sys_role r on ur.role_id = r.id
         where u.id = #{userId} and r.enabled = #{enabled}    /*0或param1都行; 但是一般使用注解*/
     </select>
+
+    <select id="selectByIdOrUserName" resultMap="BaseResultMap">
+        select id,
+               user_name,   /*resultMap中已经配置了映射, 再次配置映射将导致获取不了值*/
+               user_password,
+               user_email,
+               user_info,
+               head_img,
+               create_time
+        from sys_user
+        where 1 = 1
+        <choose>
+            <when test="id != null">
+                and id = #{id}
+            </when>
+            <when test="userName != null and userName != ''">
+                and user_name = #{userName}
+            </when>
+            <otherwise>
+                and 1 = 2   /*解决1=1导致的查询所有的数据出来*/
+            </otherwise>
+        </choose>
+    </select>
 </mapper>

@@ -82,16 +82,12 @@ public interface SysUserDao {
     List<SysRole> selectRolesByUserIdAndRoleEnabled(@Param("userId") Long userId,
                                                     @Param("enabled") Integer enabled);
 
-    /**
-     * 根据用户id和角色的enable状态获取用户角色信息
-     *
-     * @param user 用户
-     * @param role 角色
-     * @return 角色信息
-     */
+
     /*List<SysRole> selectRolesByUserIdAndRole(
             @Param("user") SysUser user,
             @Param("role") SysRole role);
 */
 
+
+    List<SysUser> selectByIdOrUserName(SysUser sysUser);
 }

@@ -1,7 +1,9 @@
 package com.tsb;
 
 import com.tsb.dao.SysRoleDao;
+import com.tsb.dao.SysUserDao;
 import com.tsb.entity.SysRole;
+import com.tsb.entity.SysUser;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -17,9 +19,9 @@ import java.util.List;
  * @program: new-mybatis
  * @description:
  * @author: Arise Tang
- * @create: 2020-04-12 18:49
+ * @create: 2020-04-12 21:56
  **/
-public class SysRoleTest {
+public class SysUserTest {
     private static SqlSessionFactory sqlSessionFactory;
 
     @BeforeClass
@@ -33,15 +35,15 @@ public class SysRoleTest {
     }
 
     @Test
-    public void testSelectAll() {
+    public void testSelectByIdOrUserName() {
         try(SqlSession sqlSession = sqlSessionFactory.openSession()){
-            SysRoleDao sysRoleDao = sqlSession.getMapper(SysRoleDao.class);
-            List<SysRole> roleList = sysRoleDao.selectAll();
-            for (SysRole role : roleList) {
+            SysUserDao sysUserDao = sqlSession.getMapper(SysUserDao.class);
+            SysUser user = new SysUser();
+            user.setId(4L);
+            List<SysUser> roleList = sysUserDao.selectByIdOrUserName(user);
+            for (SysUser role : roleList) {
                 System.out.println(role);
             }
         }
     }
-
-
 }
