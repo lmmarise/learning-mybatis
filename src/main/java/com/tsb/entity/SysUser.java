@@ -44,4 +44,12 @@ public class SysUser implements Serializable {
     * 创建时间
     */
     private Date createTime;
+
+    public SysUser() {
+    }
+
+    public SysUser(String userName, String userPassword) {
+        this.userName = userName;
+        this.userPassword = userPassword;
+    }
 }

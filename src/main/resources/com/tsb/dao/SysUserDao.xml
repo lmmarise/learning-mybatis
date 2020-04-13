@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
 <mapper namespace="com.tsb.dao.SysUserDao">
 
     <resultMap id="BaseResultMap" type="com.tsb.entity.SysUser">
@@ -143,24 +144,25 @@
     <select id="selectRolesByUserIdAndRoleEnabled"
             resultType="com.tsb.entity.SysRole">
         select r.id,
-               r.role_name roleName,
+               r.role_name   roleName,
                r.enabled,
-               r.create_by createBy,
+               r.create_by   createBy,
                r.create_time createTime
         from sys_user u
-        inner join sys_user_role ur on u.id = ur.user_id
-        inner join sys_role r on ur.role_id = r.id
-        where u.id = #{userId} and r.enabled = #{enabled}    /*0或param1都行; 但是一般使用注解*/
+                 inner join sys_user_role ur on u.id = ur.user_id
+                 inner join sys_role r on ur.role_id = r.id
+        where u.id = #{userId}
+          and r.enabled = #{enabled} /*0或param1都行; 但是一般使用注解*/
     </select>
 
     <select id="selectByIdOrUserName" resultMap="BaseResultMap">
         select id,
-               user_name,   /*resultMap中已经配置了映射, 再次配置映射将导致获取不了值*/
-               user_password,
-               user_email,
-               user_info,
-               head_img,
-               create_time
+        user_name, /*resultMap中已经配置了映射, 再次配置映射将导致获取不了值*/
+        user_password,
+        user_email,
+        user_info,
+        head_img,
+        create_time
         from sys_user
         where 1 = 1
         <choose>
@@ -171,7 +173,70 @@
                 and user_name = #{userName}
             </when>
             <otherwise>
-                and 1 = 2   /*解决1=1导致的查询所有的数据出来*/
+                /*当choose中的when都不满足时, 将执行otherwise*/
+                and 1 = 2 /*解决1=1导致的查询所有的数据出来*/
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectByIdList" resultMap="BaseResultMap">
+        select id, user_name, user_password, user_email, user_info, head_img, create_time
+        from sys_user
+        where id in
+        <foreach collection="array" open="(" close=")" separator="," index="i" item="id">
+            /*collection="array"取的是@Param("array")中的array*/
+            #{id}
+        </foreach>
+    </select>
+
+    <insert id="insertList">
+        insert into sys_user(user_name, user_password, user_email, user_info, head_img, create_time)
+        values
+        <foreach collection="list" item="user" separator=",">
+            (#{user.userName}, #{user.userPassword}, #{user.userEmail}, #{user.userInfo},
+             #{user.headImg, jdbcType=BLOB}, #{user.createTime, jdbcType=TIMESTAMP})
+        </foreach>
+    </insert>
+
+    <update id="updateByMap">
+        update sys_user
+        set
+        <foreach collection="_parameter" item="val" index="key" separator=",">
+            /*_parameter为mybatis内部默认值, 作map的key*/
+            /*key为列名*/
+            ${key} = #{val}
+        </foreach>
+        where id = #{id}
+    </update>
+
+    <!--databaseId, 根据config中配置的databaseIdProvider, 运行时根据不同的数据库进行适配 SQL-->
+    <select id="selectByUserName" resultMap="BaseResultMap" databaseId="mysql">
+        select id, user_name, user_password, user_email, user_info, head_img, create_time
+        from sys_user
+        where 1=1
+        <choose>
+            <when test="userName != null and userName != ''">
+                /*参数绑定, value是OGNL表达式, 用于适配不同数据库的SQL和避免SQL注入*/
+                <bind name="userNameLike" value="'%' + userName + '%'"/>
+                and user_name like #{userNameLike}
+            </when>
+            <otherwise>
+                and 1=2
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectByUserName" resultMap="BaseResultMap" databaseId="oracle">
+        select id, user_name, user_password, user_email, user_info, head_img, create_time
+        from sys_user
+        where 1=1
+        <choose>
+            <when test="userName != null and userName != ''">
+                <bind name="userNameLike" value="'%' + userName + '%'"/>
+                and user_name like '%'||#{userNameLike}||'%'
+            </when>
+            <otherwise>
+                and 1=2
             </otherwise>
         </choose>
     </select>

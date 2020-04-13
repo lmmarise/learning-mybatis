@@ -5,6 +5,7 @@ import com.tsb.entity.SysUser;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用户表(SysUser)表数据库访问层
@@ -90,4 +91,12 @@ public interface SysUserDao {
 
 
     List<SysUser> selectByIdOrUserName(SysUser sysUser);
+
+    List<SysUser> selectByIdList(@Param("array") Long[] ids);
+
+    int insertList(@Param("list") List<SysUser> userList);
+
+    int updateByMap(Map<String, Object> map);
+
+    List<SysUser> selectByUserName(SysUser user);
 }
