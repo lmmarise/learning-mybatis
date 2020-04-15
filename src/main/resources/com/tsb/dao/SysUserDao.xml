@@ -194,7 +194,7 @@
         values
         <foreach collection="list" item="user" separator=",">
             (#{user.userName}, #{user.userPassword}, #{user.userEmail}, #{user.userInfo},
-             #{user.headImg, jdbcType=BLOB}, #{user.createTime, jdbcType=TIMESTAMP})
+            #{user.headImg, jdbcType=BLOB}, #{user.createTime, jdbcType=TIMESTAMP})
         </foreach>
     </insert>
 
@@ -232,8 +232,27 @@
         where 1=1
         <choose>
             <when test="userName != null and userName != ''">
-                <bind name="userNameLike" value="'%' + userName + '%'"/>
                 and user_name like '%'||#{userNameLike}||'%'
+            </when>
+            <otherwise>
+                and 1=2
+            </otherwise>
+        </choose>
+    </select>
+
+    <!--对上面的改进-->
+    <select id="selectByUserName2" resultMap="BaseResultMap">
+        select id, user_name, user_password, user_email, user_info, head_img, create_time
+        from sys_user
+        where 1=1
+        <choose>
+            <when test="userName != null and userName != ''">
+                <if test="_databaseId == 'mysql">
+                    and user_name like concat('%', #{username}, '%')
+                </if>
+                <if test="_databaseId == 'oracle">
+                    and user_name like '%'||#{userNameLike}||'%'
+                </if>
             </when>
             <otherwise>
                 and 1=2
