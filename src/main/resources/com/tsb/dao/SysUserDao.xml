@@ -219,6 +219,7 @@
                 /*参数绑定, value是OGNL表达式, 用于适配不同数据库的SQL和避免SQL注入*/
                 <bind name="userNameLike" value="'%' + userName + '%'"/>
                 and user_name like #{userNameLike}
+                /*等同于: and user_name like concat('%', #{username}, '%')*/
             </when>
             <otherwise>
                 and 1=2
