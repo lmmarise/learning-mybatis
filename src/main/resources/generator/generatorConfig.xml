@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+    <!--至少配置1个，可以配置多个-->
+    <!--用于指定生成一组对象的环境-->
+    <!--targetRuntime: 用于指定生成的代码的运行时环境, 不生成与example有关的内容: MyBatis3Simple-->
+    <!--defaultModelType: 定义了MBG如何生成实体类; flat: 只为每张表生成一个实体类-->
+    <context id="Mysql" targetRuntime="MyBatis3" defaultModelType="flat">
+        <!--在MySQL中可以使用反单引号“``”作为分隔符-->
+        <property name="autoDelimitKeywords" value="true"/>
+        <property name="beginningDelimiter" value="`"/>
+        <property name="endingDelimiter" value="`"/>
+
+        <!-- plugin标签用来定义一个插件，用于扩展或修改通过MBG生成的代码-->
+        <!--该插件将按在配置中配置的顺序执行-->
+        <plugin type="com.tsb.mbg.plugins.PaginationPlugin"/>
+        <plugin type="org.mybatis.generator.plugins.ToStringPlugin"/>
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>
+        <!--在生成的SQL XML映射文件中增加一个cache标签。只有当targetRuntime为MyBatis3时，该插件才有效。-->
+        <plugin type="org.mybatis.generator.plugins.CachePlugin">
+            <property name="cache_eviction" value="LRU"/>
+            <property name="cache_size" value="1024"/>
+        </plugin>
+
+        <!--MBG生成的注释信息没有任何价值, 一般屏蔽注释-->
+        <commentGenerator type="com.tsb.mbg.generator.TSBCommentGenerator">
+            <!--阻止生成的注释包含时间戳, 默认false, 避免git每次都提交-->
+            <property name="suppressDate" value="true"/>
+            <!--阻止生成所有注释, 默认false-->
+            <!--<property name="suppressAllComments" value="true"/>-->
+            <!--注释是否添加数据库表的备注信息, 默认false-->
+            <property name="addRemarkComments" value="true"/>
+        </commentGenerator>
+
+        <!--指定MBG要连接的数据库信息-->
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+                        connectionURL="jdbc:mysql://127.0.0.1:3306/mybatis?useUnicode=true
+                                        &amp;characterEncoding=utf-8
+                                        &amp;serverTimezone=Asia/Shanghai"
+                        userId="root"
+                        password="lisago">
+            <!--oracle开启获取到列的注释信息支持-->
+            <!--<property name="remarksReporting" value="true"/>-->
+            <!--解决mysql驱动升级到8.0后不生成指定数据库代码的问题-->
+            <property name="nullCatalogMeansCurrent" value="true"/>
+        </jdbcConnection>
+
+        <!--指定JDBC类型和Java类型如何转换-->
+        <javaTypeResolver>
+            <!--
+                精度＞O或者长度＞18          ->      BigDecimal
+                精度＝O并且10＝长度＜＝18     ->      Long
+                精度＝O并且5＜＝长度＜＝9     ->      Integer
+                精度＝O并且长度＜5           ->      Short
+            -->
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <!--控制生成的实体类-->
+        <!--target Package: 生成的类要放的包, 受enableSubPackages属性控制-->
+        <!--targetProject: 生成的内容会放到指定目录中(**/java)，若目录不存在, MBG不会自动建目录-->
+        <javaModelGenerator targetPackage="com.tsb.mbg.entity"
+                            targetProject="C:\Users\13927\Desktop\new-mybatis-generator\src\main\java">
+            <!--constructorBased: MyBatis3有效, true构造传参, false使用setter传参, 默认false-->
+            <!--enableSubPackages: true, MBG会根据根据数据库的schema再生成一层package, 生成的类放在这个package下
+                false直接使用target Package属性。默认为false-->
+            <property name="enableSubPackages" value="flse"/>
+            <!--immutable: 配置实体类属性是否可变
+                true: 不可变, constructorBased将失效, 使用构造方法入参
+                false: 可变, 默认为false-->
+            <!--trimStrings: 是否对数据库查询结果进行trim操作, 默认false-->
+            <property name="trimStrings" value="false"/>
+            <!--rootClass: 设置所有实体类的基类, 使用全限定名称-->
+        </javaModelGenerator>
+
+        <!--配置SQL映射生成器(Mapper.xml)的属性, 可选(MyBatis3中javaClientGenerator配置了需要生成XML的话，这个元素就必须配置)-->
+        <!--targetPackage: 生成SQL映射文件(XML文件)存放的包名-->
+        <!--targetProject: 同上, 区别是(**/resources)-->
+        <sqlMapGenerator
+                targetPackage="com.tsb.mbg.dao"
+                targetProject="C:\Users\13927\Desktop\new-mybatis-generator\src\main\resources">
+            <!--同上-->
+            <property name="enableSubPackages" value="false"/>
+        </sqlMapGenerator>
+
+        <!--用于配置Java客户端生成器(Mapper接口)的属性,
+            不配置该标签，就不会生成Mapper接口-->
+        <!--type: 客户端代码(Mapper接口)生成器
+            可自实现AbstractJavaClientGenerator, 必须要有空参构造
+            分为MyBatis3和MyBatis3Simple:
+                ANNOTATEDMAPPER: 基于注解的Mapper接口, 不会有对应的XML映射文件。维护不容易
+                MyBatis3: MIXEDMAPPER: XML和注解的混合形式, 上面这种情况中的SQL Provider注解方法会被XML方式替代。
+                    混合使用会很乱，不利于维护
+                XMLMAPPER: 所有的方法都在XML中, 接口调用依赖XML文件, 接口和XML 完全分离，容易维护
+        -->
+        <!--可选属性implementationPackage, 如果指定了该属性,
+                Mapper接口的实现类就会生成在这个属性指定的包中-->
+        <javaClientGenerator
+                type="XMLMAPPER"
+                targetPackage="com.tsb.mbg.dao"
+                targetProject="C:\Users\13927\Desktop\new-mybatis-generator\src\main\java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+
+        <!--配置需要通过内省数据库的表, 配置过的表，才能经过上述其他配置生成最终的代码，该标签至少要配置一个，可以配置多个-->
+        <!--生成全部的表: <table tableName="%"/>-->
+        <!--
+            属性:
+                schema: 数据库的schema, SQL的表名schema.tableName形式
+                catalog: 数据库的catalog, SQL的表名catalog.tableName形式
+                alias: 用在生成的select查询SQL表的别名和列名上
+                domainObjectName: 没有指定, MBG会自动根据表名来生成名称
+                enableXXX: 是否生成对应的xxx语句
+                selectByPrimaryKeyQueryId: DBA跟踪工具中会用到
+                ...
+        -->
+        <table tableName="sys_user">
+            <!--指定自动生成主键的属性(identity字段或者sequences序列)
+                MBG将在生成insert的SQL映射文件中插入一个selectKey标签-->
+            <!--column: 生成列的列名-->
+            <!--sqlStatement: 返回新值的SQL语句, identity列可以使用预定义的特殊值-->
+            <!--identity: true时, 会被标记为identity列, 井且selectKey标签会被插入在Insert后面-->
+            <!--type:
+                post时: selectKey中order=AFTER; 自动增长的列插入后获得id
+                pre时: identity只能为false, selectKey中order=BEFORE; 序列需先获得再插入
+            -->
+            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+            <!--Oracle-->
+            <!--<generatedKey column="id" sqlStatement="select SEQ_ID.nextval from dual"/>-->
+
+            <!--生成列之前对列进行重命名; 例: 去除开头的"CUST_"-->
+            <!--searchString: 定义将要被替换的字符串的正则表达式-->
+            <!--replaceString: 替换搜索字符串列每一个匹配项的字符串-->
+            <!--<columnRenamingRule searchString="^CUST_" replaceString=""/>-->
+
+            <!--将某些默认计算的属性值更改为指定的值
+                  必选:
+                    column: 表示要重写的列名
+                  可选属性:
+                    property: 要使用的Java属性的名称. 没有指定, MBG会根据列名生成
+                    javaType: 列的属性值为完全限定的Java类型, 可覆盖JavaTypeResolver计算出的类型
+                    jdbcType: 列的JDBC类型, 可覆盖
+                    typeHandler: 用户定义的需要用来处理列的类型处理器
+                    delimitedColumnName: 是否应在生成的SQL的列名称上增加分隔符
+            -->
+            <!--<columnOverride
+                    column="create_time"
+                    javaType="java.util.Date"
+                    jdbcType="TIMESTAMP"/>-->
+
+            <!--屏蔽不需要生成的列, 可选, 可多个-->
+            <!--必选属性column, 表示要忽略的列名-->
+            <!--可选属性delimitedColumnName, 是否区分大小写, true区分-->
+            <!--<ignoreColumn column=""/>-->
+        </table>
+        <table tableName="sys_user_role"/>
+        <table tableName="sys_role"/>
+        <table tableName="sys_privilege"/>
+    </context>
+</generatorConfiguration>
